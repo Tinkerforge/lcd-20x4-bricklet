@@ -5,8 +5,8 @@ HOST = "localhost"
 PORT = 4223
 UID = "XYZ" # Change to your UID
 
-from ip_connection import IPConnection
-from bricklet_lcd_20x4 import LCD20x4
+from tinkerforge.ip_connection import IPConnection
+from tinkerforge.bricklet_lcd_20x4 import LCD20x4
 
 # Callback functions for button status
 def cb_pressed(i):
