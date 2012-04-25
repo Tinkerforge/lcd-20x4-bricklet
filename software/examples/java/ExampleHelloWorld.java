@@ -11,20 +11,18 @@ public class ExampleHelloWorld {
 	public static void main(String args[]) throws Exception {
 		// Create connection to brickd
 		IPConnection ipcon = new IPConnection(host, port); // Can throw IOException
-
 		BrickletLCD20x4 lcd = new BrickletLCD20x4(UID); // Create device object
 
-		// Add device to ip connection
+		// Add device to IP connection
 		ipcon.addDevice(lcd); // Can throw IPConnection.TimeoutException
 		// Don't use device before it is added to a connection
-		
 
 		// Turn backlight on
 		lcd.backlightOn();
 
 		// Write "Hello World"
 		lcd.writeLine((short)0, (short)0, "Hello World");
-		
+
 		System.out.println("Press ctrl+c to exit");
 		ipcon.joinThread();
 	}
