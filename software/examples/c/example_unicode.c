@@ -129,6 +129,7 @@ int main() {
 	// Write a string directly including characters from the LCD charset
 	lcd_20x4_write_line(&lcd, 2, 0, "Drehzahl:   750min\xe9");
 
-	printf("Press ctrl+c to close\n");
-	ipcon_join_thread(&ipcon); // Join mainloop of IP connection
+	printf("Press key to exit\n");
+	getchar();
+	ipcon_destroy(&ipcon);
 }
