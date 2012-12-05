@@ -108,8 +108,6 @@ void constructor(void) {
 
     if(BC->button_4_available) {
         PIN_BUTTON_3.type = PIO_INPUT;
-        PIN_BUTTON_3.attribute = PIO_DEFAULT;
-        BA->PIO_Configure(&PIN_BUTTON_3, 1);
         PIN_BUTTON_3.attribute = PIO_PULLUP;
         BA->PIO_Configure(&PIN_BUTTON_3, 1);
     } else {
