@@ -88,10 +88,10 @@ void constructor(void) {
     BC->hardware_version[2] = 0;
     if(PIN_BUTTON_3.pio->PIO_PDSR & PIN_BUTTON_3.mask) {
         BC->hardware_version[1] = 1;
-    	BC->button_4_available = false;
+    	BC->button_3_available = false;
     } else {
         BC->hardware_version[1] = 2;
-    	BC->button_4_available = true;
+    	BC->button_3_available = true;
     }
 
     PIN_BUTTON_0.type = PIO_INPUT;
@@ -106,7 +106,7 @@ void constructor(void) {
     PIN_BUTTON_2.attribute = PIO_PULLUP;
     BA->PIO_Configure(&PIN_BUTTON_2, 1);
 
-    if(BC->button_4_available) {
+    if(BC->button_3_available) {
         PIN_BUTTON_3.type = PIO_INPUT;
         PIN_BUTTON_3.attribute = PIO_PULLUP;
         BA->PIO_Configure(&PIN_BUTTON_3, 1);
@@ -175,7 +175,7 @@ void tick(const uint8_t tick_type) {
 		pressed[2] = PIN_BUTTON_2.pio->PIO_PDSR & PIN_BUTTON_2.mask;
 
 		uint8_t for_to = NUM_BUTTON;
-		if(BC->button_4_available) {
+		if(BC->button_3_available) {
 			pressed[3] = PIN_BUTTON_3.pio->PIO_PDSR & PIN_BUTTON_3.mask;
 		} else {
 			for_to = NUM_BUTTON-1;
@@ -392,7 +392,7 @@ void is_button_pressed(const ComType com, const IsButtonPressed *data) {
 			ibpr.pressed =!(PIN_BUTTON_2.pio->PIO_PDSR & PIN_BUTTON_2.mask);
 			break;
 		case 3:
-			if(BC->button_4_available) {
+			if(BC->button_3_available) {
 				ibpr.pressed =!(PIN_BUTTON_3.pio->PIO_PDSR & PIN_BUTTON_3.mask);
 			} else {
 				BA->com_return_error(data, sizeof(IsButtonPressedReturn), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);

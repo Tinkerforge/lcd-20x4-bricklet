@@ -49,7 +49,7 @@
 
 typedef struct {
 	bool button_pressed[NUM_BUTTON];
-	bool button_4_available;
+	bool button_3_available;
 	uint8_t port_a;
 	uint8_t port_b;
 	uint8_t cursor;
