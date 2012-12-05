@@ -33,10 +33,6 @@
 #define BRICKLET_FIRMWARE_VERSION_MINOR 0
 #define BRICKLET_FIRMWARE_VERSION_REVISION 0
 
-#define BRICKLET_HARDWARE_VERSION_MAJOR 1
-#define BRICKLET_HARDWARE_VERSION_MINOR 1
-#define BRICKLET_HARDWARE_VERSION_REVISION 0
-
 #define BRICKLET_DEVICE_IDENTIFIER 212
 
 #define BOARD_MCK 64000000
@@ -46,16 +42,19 @@
 #define PIN_BUTTON_0   (BS->pin1_ad)
 #define PIN_BUTTON_1   (BS->pin2_da)
 #define PIN_BUTTON_2   (BS->pin3_pwm)
+#define PIN_BUTTON_3   (BS->pin4_io)
 #define PIN_RESET      (BS->pin4_io)
 
-#define NUM_BUTTON 3
+#define NUM_BUTTON 4
 
 typedef struct {
-	bool button_pressed[3];
+	bool button_pressed[NUM_BUTTON];
+	bool button_4_available;
 	uint8_t port_a;
 	uint8_t port_b;
 	uint8_t cursor;
 	uint8_t blinking;
+	uint8_t hardware_version[3];
 } BrickContext;
 
 #endif

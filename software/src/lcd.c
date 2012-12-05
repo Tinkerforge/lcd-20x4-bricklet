@@ -78,9 +78,45 @@ void invocation(const ComType com, const uint8_t *data) {
 }
 
 void constructor(void) {
-	// Disable Reset
-    PIN_RESET.type = PIO_OUTPUT_1;
-    BA->PIO_Configure(&PIN_RESET, 1);
+    PIN_BUTTON_3.type = PIO_INPUT;
+    PIN_BUTTON_3.attribute = PIO_PULLDOWN;
+    BA->PIO_Configure(&PIN_BUTTON_3, 1);
+
+    SLEEP_US(200);
+
+    BC->hardware_version[0] = 1;
+    BC->hardware_version[2] = 0;
+    if(PIN_BUTTON_3.pio->PIO_PDSR & PIN_BUTTON_3.mask) {
+        BC->hardware_version[1] = 1;
+    	BC->button_4_available = false;
+    } else {
+        BC->hardware_version[1] = 2;
+    	BC->button_4_available = true;
+    }
+
+    PIN_BUTTON_0.type = PIO_INPUT;
+    PIN_BUTTON_0.attribute = PIO_PULLUP;
+    BA->PIO_Configure(&PIN_BUTTON_0, 1);
+
+    PIN_BUTTON_1.type = PIO_INPUT;
+    PIN_BUTTON_1.attribute = PIO_PULLUP;
+    BA->PIO_Configure(&PIN_BUTTON_1, 1);
+
+    PIN_BUTTON_2.type = PIO_INPUT;
+    PIN_BUTTON_2.attribute = PIO_PULLUP;
+    BA->PIO_Configure(&PIN_BUTTON_2, 1);
+
+    if(BC->button_4_available) {
+        PIN_BUTTON_3.type = PIO_INPUT;
+        PIN_BUTTON_3.attribute = PIO_DEFAULT;
+        BA->PIO_Configure(&PIN_BUTTON_3, 1);
+        PIN_BUTTON_3.attribute = PIO_PULLUP;
+        BA->PIO_Configure(&PIN_BUTTON_3, 1);
+    } else {
+        PIN_RESET.type = PIO_OUTPUT_1;
+        PIN_RESET.attribute = PIO_DEFAULT;
+        BA->PIO_Configure(&PIN_RESET, 1);
+    }
 
 	// Make all pins output
 	io_write(I2C_INTERNAL_ADDRESS_IODIR_A, 0);
@@ -121,22 +157,10 @@ void constructor(void) {
 	lcd_enable();
 	SLEEP_US(LCD_TIME_US_CLEAR_DISPLAY);
 
-    // Configure buttons
-	PIN_BUTTON_0.type = PIO_INPUT;
-	PIN_BUTTON_0.attribute = PIO_PULLUP;
-    BA->PIO_Configure(&PIN_BUTTON_0, 1);
-
-    PIN_BUTTON_1.type = PIO_INPUT;
-    PIN_BUTTON_1.attribute = PIO_PULLUP;
-    BA->PIO_Configure(&PIN_BUTTON_1, 1);
-
-    PIN_BUTTON_2.type = PIO_INPUT;
-    PIN_BUTTON_2.attribute = PIO_PULLUP;
-    BA->PIO_Configure(&PIN_BUTTON_2, 1);
-
     BC->button_pressed[0] = true;
     BC->button_pressed[1] = true;
     BC->button_pressed[2] = true;
+    BC->button_pressed[3] = true;
 }
 
 void destructor(void) {
@@ -147,12 +171,19 @@ void destructor(void) {
 
 void tick(const uint8_t tick_type) {
 	if(tick_type & TICK_TASK_TYPE_MESSAGE) {
-		bool pressed[3];
+		bool pressed[NUM_BUTTON];
 		pressed[0] = PIN_BUTTON_0.pio->PIO_PDSR & PIN_BUTTON_0.mask;
 		pressed[1] = PIN_BUTTON_1.pio->PIO_PDSR & PIN_BUTTON_1.mask;
 		pressed[2] = PIN_BUTTON_2.pio->PIO_PDSR & PIN_BUTTON_2.mask;
 
-		for(uint8_t i = 0; i < NUM_BUTTON; i++) {
+		uint8_t for_to = NUM_BUTTON;
+		if(BC->button_4_available) {
+			pressed[3] = PIN_BUTTON_3.pio->PIO_PDSR & PIN_BUTTON_3.mask;
+		} else {
+			for_to = NUM_BUTTON-1;
+		}
+
+		for(uint8_t i = 0; i < for_to; i++) {
 			if(!pressed[i]) {
 				if(BC->button_pressed[i]) {
 					BC->button_pressed[i] = false;
@@ -361,6 +392,14 @@ void is_button_pressed(const ComType com, const IsButtonPressed *data) {
 			break;
 		case 2:
 			ibpr.pressed =!(PIN_BUTTON_2.pio->PIO_PDSR & PIN_BUTTON_2.mask);
+			break;
+		case 3:
+			if(BC->button_4_available) {
+				ibpr.pressed =!(PIN_BUTTON_3.pio->PIO_PDSR & PIN_BUTTON_3.mask);
+			} else {
+				BA->com_return_error(data, sizeof(IsButtonPressedReturn), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
+				return;
+			}
 			break;
 		default:
 			BA->com_return_error(data, sizeof(IsButtonPressedReturn), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
