@@ -1,5 +1,5 @@
 /* lcd-bricklet
- * Copyright (C) 2011 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2011-2012 Olaf Lüke <olaf@tinkerforge.com>
  *
  * config.h: LCD Bricklet specific configuration
  *
@@ -29,10 +29,11 @@
 
 #include "lcd.h"
 
-#define BRICKLET_HARDWARE_NAME "LCD 20x4 Bricklet 1.0"
+#define BRICKLET_HARDWARE_NAME_10 "LCD 20x4 Bricklet 1.0"
+#define BRICKLET_HARDWARE_NAME_12 "LCD 20x4 Bricklet 1.2"
 #define BRICKLET_FIRMWARE_VERSION_MAJOR 1
 #define BRICKLET_FIRMWARE_VERSION_MINOR 1
-#define BRICKLET_FIRMWARE_VERSION_REVISION 0
+#define BRICKLET_FIRMWARE_VERSION_REVISION 1
 
 #define BOARD_MCK 64000000
 
@@ -41,12 +42,15 @@
 #define PIN_BUTTON_0   (BS->pin1_ad)
 #define PIN_BUTTON_1   (BS->pin2_da)
 #define PIN_BUTTON_2   (BS->pin3_pwm)
+#define PIN_BUTTON_3   (BS->pin4_io)
 #define PIN_RESET      (BS->pin4_io)
 
-#define NUM_BUTTON 3
+#define NUM_BUTTON 4
 
 typedef struct {
-	bool button_pressed[3];
+	bool button_pressed[NUM_BUTTON];
+	bool button_3_available;
+	char hardware_name[22];
 	uint8_t port_a;
 	uint8_t port_b;
 	uint8_t cursor;
