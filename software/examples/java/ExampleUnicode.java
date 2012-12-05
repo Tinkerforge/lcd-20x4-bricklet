@@ -90,15 +90,13 @@ public class ExampleUnicode {
 	}
 
 	// Note: To make the example code cleaner we do not handle exceptions. Exceptions you
-	//       might normally want to catch are described in the commnents below
+	//       might normally want to catch are described in the documentation
 	public static void main(String args[]) throws Exception {
-		// Create connection to brickd
-		IPConnection ipcon = new IPConnection(host, port); // Can throw IOException
-		BrickletLCD20x4 lcd = new BrickletLCD20x4(UID); // Create device object
+		IPConnection ipcon = new IPConnection(); // Create IP connection
+		BrickletLCD20x4 lcd = new BrickletLCD20x4(UID, ipcon); // Create device object
 
-		// Add device to IP connection
-		ipcon.addDevice(lcd); // Can throw IPConnection.TimeoutException
-		// Don't use device before it is added to a connection
+		ipcon.connect(host, port); // Connect to brickd
+		// Don't use device before ipcon is connected
 
 		// Turn backlight on
 		lcd.backlightOn();
@@ -111,6 +109,5 @@ public class ExampleUnicode {
 		lcd.writeLine((short)2, (short)0, "Drehzahl:   750min\u00e9");
 
 		System.console().readLine("Press key to exit\n");
-		ipcon.destroy();
 	}
 }
