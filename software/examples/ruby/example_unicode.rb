@@ -100,10 +100,11 @@ ipcon.connect HOST, PORT # Connect to brickd
 lcd.backlight_on
 
 # Write a string using the unicode_to_ks0066u function to map to the LCD charset
-lcd.write_line 0, 0, unicode_to_ks0066u('Stromstärke: 5µA')
+lcd.write_line 0, 0, unicode_to_ks0066u('Stromstärke: 17µA')
+lcd.write_line 1, 0, unicode_to_ks0066u('Temperatur:  23°C')
 
 # Write a string directly including characters from the LCD charset
-lcd.write_line 1, 0, "Drehzahl: 1000s\xe9"
+lcd.write_line 2, 0, "Drehzahl:   750min\xe9"
 
 puts 'Press key to exit'
 $stdin.gets
