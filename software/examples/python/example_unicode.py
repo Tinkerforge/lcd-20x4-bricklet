@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
     ipcon.connect(HOST, PORT) # Connect to brickd
     # Don't use device before ipcon is connected
-#
+
     # Turn backlight on
     lcd.backlight_on()
 
@@ -113,4 +113,4 @@ if __name__ == "__main__":
     # Write a string directly including characters from the LCD charset
     lcd.write_line(2, 0, b'Drehzahl:   750min\xe9')
 
-    input('Press key to exit\n') # Use input() in Python 3
+    raw_input('Press key to exit\n') # Use input() in Python 3
