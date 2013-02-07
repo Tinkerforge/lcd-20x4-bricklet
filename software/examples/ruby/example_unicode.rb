@@ -108,3 +108,4 @@ lcd.write_line 2, 0, "Drehzahl:   750min\xe9"
 
 puts 'Press key to exit'
 $stdin.gets
+ipcon.disconnect
