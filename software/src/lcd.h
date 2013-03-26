@@ -159,6 +159,10 @@ typedef struct {
 #define FID_BUTTON_RELEASED 10
 #define FID_SET_CUSTOM_CHARACTER 11
 #define FID_GET_CUSTOM_CHARACTER 12
+#define FID_SET_DEFAULT_TEXT 13
+#define FID_GET_DEFAULT_TEXT 14
+#define FID_SET_DEFAULT_TEXT_COUNTER 15
+#define FID_GET_DEFAULT_TEXT_COUNTER 16
 
 typedef struct {
 	MessageHeader header;
@@ -240,6 +244,39 @@ typedef struct {
 	uint8_t character[8];
 } __attribute__((__packed__)) GetCustomCharacterReturn;
 
+typedef struct {
+	MessageHeader header;
+	uint8_t line;
+	char text[20];
+} __attribute__((__packed__)) SetDefaultText;
+
+typedef struct {
+	MessageHeader header;
+	uint8_t line;
+} __attribute__((__packed__)) GetDefaultText;
+
+typedef struct {
+	MessageHeader header;
+	char text[20];
+} __attribute__((__packed__)) GetDefaultTextReturn;
+
+typedef struct {
+	MessageHeader header;
+	int32_t counter;
+} __attribute__((__packed__)) SetDefaultTextCounter;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetDefaultTextCounter;
+
+typedef struct {
+	MessageHeader header;
+	int32_t counter;
+} __attribute__((__packed__)) GetDefaultTextCounterReturn;
+
+void make_callback(uint8_t i, uint8_t fid, bool state);
+void write_line_impl(const uint8_t line, const uint8_t position, const char *text);
+
 void write_line(const ComType com, const WriteLine *data);
 void clear_display(const ComType com, const ClearDisplay *data);
 void set_config(const ComType com, const SetConfig *data);
@@ -250,5 +287,9 @@ void is_backlight_on(const ComType com, const IsBacklightOn *data);
 void is_button_pressed(const ComType com, const IsButtonPressed *data);
 void set_custom_character(const ComType com, const SetCustomCharacter *data);
 void get_custom_character(const ComType com, const GetCustomCharacter *data);
+void set_default_text(const ComType com, const SetDefaultText *data);
+void get_default_text(const ComType com, const GetDefaultText *data);
+void set_default_text_counter(const ComType com, const SetDefaultTextCounter *data);
+void get_default_text_counter(const ComType com, const GetDefaultTextCounter *data);
 
 #endif

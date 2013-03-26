@@ -31,7 +31,7 @@
 
 #define BRICKLET_FIRMWARE_VERSION_MAJOR 2
 #define BRICKLET_FIRMWARE_VERSION_MINOR 0
-#define BRICKLET_FIRMWARE_VERSION_REVISION 1
+#define BRICKLET_FIRMWARE_VERSION_REVISION 2
 
 #define BRICKLET_DEVICE_IDENTIFIER 212
 
@@ -55,6 +55,9 @@ typedef struct {
 	uint8_t cursor;
 	uint8_t blinking;
 	uint8_t hardware_version[3];
+
+	int32_t default_text_counter;
+	char default_text[4][20];
 } BrickContext;
 
 #endif

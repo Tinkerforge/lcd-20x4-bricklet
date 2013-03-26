@@ -80,6 +80,26 @@ void invocation(const ComType com, const uint8_t *data) {
 			break;
 		}
 
+		case FID_SET_DEFAULT_TEXT: {
+			set_default_text(com, (SetDefaultText*)data);
+			break;
+		}
+
+		case FID_GET_DEFAULT_TEXT: {
+			get_default_text(com, (GetDefaultText*)data);
+			break;
+		}
+
+		case FID_SET_DEFAULT_TEXT_COUNTER: {
+			set_default_text_counter(com, (SetDefaultTextCounter*)data);
+			break;
+		}
+
+		case FID_GET_DEFAULT_TEXT_COUNTER: {
+			get_default_text_counter(com, (GetDefaultTextCounter*)data);
+			break;
+		}
+
 		default: {
 			BA->com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_NOT_SUPPORTED, com);
 			break;
@@ -172,12 +192,17 @@ void constructor(void) {
     BC->button_pressed[1] = true;
     BC->button_pressed[2] = true;
     BC->button_pressed[3] = true;
+    BC->default_text[0][0] = '\0';
+    BC->default_text[1][0] = '\0';
+    BC->default_text[2][0] = '\0';
+    BC->default_text[3][0] = '\0';
+    BC->default_text_counter = -1;
 }
 
 void destructor(void) {
-	PIN_RESET.type = PIO_INPUT;
-	PIN_RESET.attribute = PIO_PULLUP;
-    BA->PIO_Configure(&PIN_RESET, 1);
+//	PIN_RESET.type = PIO_INPUT;
+//	PIN_RESET.attribute = PIO_PULLUP;
+//  BA->PIO_Configure(&PIN_RESET, 1);
 }
 
 void tick(const uint8_t tick_type) {
@@ -196,29 +221,33 @@ void tick(const uint8_t tick_type) {
 
 		for(uint8_t i = 0; i < for_to; i++) {
 			if(!pressed[i]) {
-				if(BC->button_pressed[i]) {
-					BC->button_pressed[i] = false;
-					ButtonPressedCallback bps;
-					BA->com_make_default_header(&bps, BS->uid, sizeof(ButtonPressedCallback), FID_BUTTON_PRESSED);
-					bps.button = i;
-
-					BA->send_blocking_with_timeout(&bps,
-												   sizeof(ButtonPressedCallback),
-												   *BA->com_current);
-				}
+				make_callback(i, FID_BUTTON_PRESSED, true);
 			} else {
-				if(!BC->button_pressed[i]) {
-					BC->button_pressed[i] = true;
-					ButtonReleasedCallback brs;
-					BA->com_make_default_header(&brs, BS->uid, sizeof(ButtonReleasedCallback), FID_BUTTON_RELEASED);
-					brs.button = i;
-
-					BA->send_blocking_with_timeout(&brs,
-												   sizeof(ButtonReleasedCallback),
-												   *BA->com_current);
+				make_callback(i, FID_BUTTON_RELEASED, false);
+			}
+		}
+	} else if(tick_type & TICK_TASK_TYPE_CALCULATION) {
+		if(BC->default_text_counter > -1) {
+			BC->default_text_counter--;
+			if(BC->default_text_counter == 0) {
+				for(uint8_t i = 0; i < 4; i++) {
+					write_line_impl(i, 0, BC->default_text[i]);
 				}
 			}
 		}
+	}
+}
+
+void make_callback(uint8_t i, uint8_t fid, bool state) {
+	if(BC->button_pressed[i] == state) {
+		BC->button_pressed[i] = !state;
+		ButtonPressedCallback bps;
+		BA->com_make_default_header(&bps, BS->uid, sizeof(ButtonPressedCallback), fid);
+		bps.button = i;
+
+		BA->send_blocking_with_timeout(&bps,
+									   sizeof(ButtonPressedCallback),
+									   *BA->com_current);
 	}
 }
 
@@ -332,23 +361,27 @@ void lcd_move_cursor(const uint8_t line, const uint8_t position) {
 	SLEEP_US(LCD_TIME_US_SET_MODE);
 }
 
+void write_line_impl(const uint8_t line, const uint8_t position, const char *text) {
+	lcd_move_cursor(line, position);
+	for(int8_t i = 0; i < MAX_LENGTH - position; i++) {
+		if(text[i] == '\0') {
+			break;
+		}
+		if(text[i] > 7 && text[i] < 16) {
+			lcd_putchar(text[i] - 8);
+		} else {
+			lcd_putchar(text[i]);
+		}
+	}
+}
+
 void write_line(const ComType com, const WriteLine *data) {
 	if(data->line > 3 || data->position > 19) {
 		BA->com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
-	lcd_move_cursor(data->line, data->position);
-	for(int8_t i = 0; i < MAX_LENGTH - data->position; i++) {
-		if(data->text[i] == '\0') {
-			break;
-		}
-		if(data->text[i] > 7 && data->text[i] < 16) {
-			lcd_putchar(data->text[i] - 8);
-		} else {
-			lcd_putchar(data->text[i]);
-		}
-	}
+	write_line_impl(data->line, data->position, data->text);
 
 	BA->com_return_setter(com, data);
 }
@@ -503,4 +536,60 @@ void get_custom_character(const ComType com, const GetCustomCharacter *data) {
 	io_write(I2C_INTERNAL_ADDRESS_IODIR_B, 0);
 
 	BA->send_blocking_with_timeout(&gccr, sizeof(GetCustomCharacterReturn), com);
+}
+
+void set_default_text(const ComType com, const SetDefaultText *data) {
+	if(data->line > 3) {
+		BA->com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
+		return;
+	}
+
+	uint8_t i = 0;
+	for(i = 0; i < MAX_LENGTH; i++) {
+		BC->default_text[data->line][i] = data->text[i];
+	}
+
+	BA->com_return_setter(com, data);
+}
+
+void get_default_text(const ComType com, const GetDefaultText *data) {
+	if(data->line > 3) {
+		BA->com_return_error(data, sizeof(GetDefaultText), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
+		return;
+	}
+
+	GetDefaultTextReturn gdtr;
+
+	gdtr.header        = data->header;
+	gdtr.header.length = sizeof(GetDefaultTextReturn);
+
+
+	uint8_t i = 0;
+	for(i = 0; i < MAX_LENGTH; i++) {
+		if(BC->default_text[data->line][i] == '\0') {
+			break;
+		}
+		gdtr.text[i] = BC->default_text[data->line][i];
+	}
+
+	for(; i < MAX_LENGTH; i++) {
+		gdtr.text[i] = '\0';
+	}
+
+	BA->send_blocking_with_timeout(&gdtr, sizeof(GetDefaultTextReturn), com);
+}
+
+void set_default_text_counter(const ComType com, const SetDefaultTextCounter *data) {
+	BC->default_text_counter = data->counter;
+	BA->com_return_setter(com, data);
+}
+
+void get_default_text_counter(const ComType com, const GetDefaultTextCounter *data) {
+	GetDefaultTextCounterReturn gdtcr;
+
+	gdtcr.header        = data->header;
+	gdtcr.header.length = sizeof(GetDefaultTextCounterReturn);
+	gdtcr.counter       = BC->default_text_counter;
+
+	BA->send_blocking_with_timeout(&gdtcr, sizeof(GetDefaultTextCounterReturn), com);
 }
