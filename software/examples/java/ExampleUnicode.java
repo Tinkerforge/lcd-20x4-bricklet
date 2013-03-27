@@ -109,5 +109,6 @@ public class ExampleUnicode {
 		lcd.writeLine((short)2, (short)0, "Drehzahl:   750min\u00e9");
 
 		System.console().readLine("Press key to exit\n");
+		ipcon.disconnect();
 	}
 }
