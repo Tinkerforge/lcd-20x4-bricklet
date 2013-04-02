@@ -107,12 +107,16 @@ void invocation(const ComType com, const uint8_t *data) {
 	}
 }
 
+void sleep_us(uint16_t t) {
+	SLEEP_US(t);
+}
+
 void constructor(void) {
     PIN_BUTTON_3.type = PIO_INPUT;
     PIN_BUTTON_3.attribute = PIO_PULLDOWN;
     BA->PIO_Configure(&PIN_BUTTON_3, 1);
 
-    SLEEP_US(200);
+    sleep_us(200);
 
     BC->hardware_version[0] = 1;
     BC->hardware_version[2] = 0;
@@ -164,7 +168,7 @@ void constructor(void) {
 	          LCD_FUNCTION_2LINE |
 	          LCD_FUNCTION_5X7);
 	lcd_enable();
-	SLEEP_US(LCD_TIME_US_SET_MODE);
+	sleep_us(LCD_TIME_US_SET_MODE);
 
 	// Enable display, no cursor or blinking
 	BC->cursor = 0;
@@ -174,19 +178,19 @@ void constructor(void) {
 			  LCD_CURSOR_OFF     |
 			  LCD_BLINKING_OFF);
 	lcd_enable();
-	SLEEP_US(LCD_TIME_US_SET_MODE);
+	sleep_us(LCD_TIME_US_SET_MODE);
 
 	// Increase pointer and no display shift
 	lcd_set_b(LCD_SET_ENTRY      |
 	          LCD_ENTRY_INCREASE |
 	          LCD_ENTRY_NOSHIFT);
 	lcd_enable();
-	SLEEP_US(LCD_TIME_US_SET_MODE);
+	sleep_us(LCD_TIME_US_SET_MODE);
 
 	// Clear display
 	lcd_set_b(LCD_CLEAR_DISPLAY);
 	lcd_enable();
-	SLEEP_US(LCD_TIME_US_CLEAR_DISPLAY);
+	sleep_us(LCD_TIME_US_CLEAR_DISPLAY);
 
     BC->button_pressed[0] = true;
     BC->button_pressed[1] = true;
@@ -220,10 +224,10 @@ void tick(const uint8_t tick_type) {
 		}
 
 		for(uint8_t i = 0; i < for_to; i++) {
-			if(!pressed[i]) {
-				make_callback(i, FID_BUTTON_PRESSED, true);
-			} else {
+			if(pressed[i]) {
 				make_callback(i, FID_BUTTON_RELEASED, false);
+			} else {
+				make_callback(i, FID_BUTTON_PRESSED, true);
 			}
 		}
 	} else if(tick_type & TICK_TASK_TYPE_CALCULATION) {
@@ -263,7 +267,7 @@ void lcd_set_b(const uint8_t value) {
 
 void lcd_enable(void) {
 	lcd_set_a(BC->port_a | LCD_EN);
-	SLEEP_US(LCD_TIME_US_ENABLE);
+	sleep_us(LCD_TIME_US_ENABLE);
 	lcd_set_a(BC->port_a & (~LCD_EN));
 }
 
@@ -325,7 +329,7 @@ void lcd_putchar(const char c) {
 	}
 	lcd_set_b((const uint8_t)c);
 	lcd_enable();
-	SLEEP_US(LCD_TIME_US_SET_DATA);
+	sleep_us(LCD_TIME_US_SET_DATA);
 }
 
 void lcd_putstr(const char *c) {
@@ -358,7 +362,7 @@ void lcd_move_cursor(const uint8_t line, const uint8_t position) {
 	lcd_set_a(0);
 	lcd_set_b(command);
 	lcd_enable();
-	SLEEP_US(LCD_TIME_US_SET_MODE);
+	sleep_us(LCD_TIME_US_SET_MODE);
 }
 
 void write_line_impl(const uint8_t line, const uint8_t position, const char *text) {
@@ -392,7 +396,7 @@ void clear_display(const ComType com, const ClearDisplay *data) {
 	lcd_enable();
 
 	BA->com_return_setter(com, data);
-	SLEEP_US(LCD_TIME_US_CLEAR_DISPLAY);
+	sleep_us(LCD_TIME_US_CLEAR_DISPLAY);
 }
 
 void set_config(const ComType com, const SetConfig *data) {
@@ -492,7 +496,7 @@ void set_custom_character(const ComType com, const SetCustomCharacter *data) {
 	lcd_set_b(LCD_SET_CGADR | data->index*8);
 	lcd_set_a(0);
 	lcd_enable();
-	SLEEP_US(LCD_TIME_US_SET_DATA);
+	sleep_us(LCD_TIME_US_SET_DATA);
 
 	if(!(BC->port_a & LCD_RS)) {
 		lcd_set_a(LCD_RS);
@@ -501,7 +505,7 @@ void set_custom_character(const ComType com, const SetCustomCharacter *data) {
 	for(uint8_t i = 0; i < 8; i++) {
 		lcd_set_b(data->character[i] & 0x1F);
 		lcd_enable();
-		SLEEP_US(LCD_TIME_US_SET_DATA);
+		sleep_us(LCD_TIME_US_SET_DATA);
 	}
 
 	BA->com_return_setter(com, data);
@@ -520,14 +524,14 @@ void get_custom_character(const ComType com, const GetCustomCharacter *data) {
 	lcd_set_b(LCD_SET_CGADR | data->index*8);
 	lcd_set_a(0);
 	lcd_enable();
-	SLEEP_US(LCD_TIME_US_SET_DATA);
+	sleep_us(LCD_TIME_US_SET_DATA);
 
 	io_write(I2C_INTERNAL_ADDRESS_IODIR_B, 0xFF);
 	lcd_set_a(LCD_RS | LCD_RW);
 
 	for(uint8_t i = 0; i < 8; i++) {
 		lcd_set_a(BC->port_a | LCD_EN);
-		SLEEP_US(LCD_TIME_US_SET_DATA);
+		sleep_us(LCD_TIME_US_SET_DATA);
 		gccr.character[i] = io_read(I2C_INTERNAL_ADDRESS_GPIO_B);
 		lcd_set_a(BC->port_a & (~LCD_EN));
 	}
