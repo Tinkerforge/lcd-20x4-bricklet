@@ -1,5 +1,6 @@
 /* lcd-bricklet
  * Copyright (C) 2011-2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2013 Matthias Bolte <matthias@tinkerforge.com>
  *
  * config.h: LCD Bricklet specific configuration
  *
@@ -31,7 +32,7 @@
 
 #define BRICKLET_FIRMWARE_VERSION_MAJOR 2
 #define BRICKLET_FIRMWARE_VERSION_MINOR 0
-#define BRICKLET_FIRMWARE_VERSION_REVISION 2
+#define BRICKLET_FIRMWARE_VERSION_REVISION 3
 
 #define BRICKLET_DEVICE_IDENTIFIER 212
 
@@ -55,6 +56,8 @@ typedef struct {
 	uint8_t cursor;
 	uint8_t blinking;
 	uint8_t hardware_version[3];
+	uint8_t line;
+	uint8_t position;
 
 	int32_t default_text_counter;
 	char default_text[4][20];

@@ -1,5 +1,6 @@
 /* lcd-bricklet
  * Copyright (C) 2011-2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2013 Matthias Bolte <matthias@tinkerforge.com>
  *
  * lcd.h: Implementation of LCD Bricklet messages
  *
@@ -137,7 +138,6 @@ void tick(const uint8_t tick_type);
 
 void lcd_move_cursor(const uint8_t line, const uint8_t position);
 void lcd_putchar(const char c);
-void lcd_putstr(const char *c);
 void lcd_set_a(const uint8_t value);
 void lcd_set_b(const uint8_t value);
 void lcd_enable(void);
@@ -276,6 +276,7 @@ typedef struct {
 
 void make_callback(uint8_t i, uint8_t fid, bool state);
 void write_line_impl(const uint8_t line, const uint8_t position, const char *text);
+void lcd_command(const uint8_t a, const uint8_t b, const uint16_t sleep);
 
 void write_line(const ComType com, const WriteLine *data);
 void clear_display(const ComType com, const ClearDisplay *data);

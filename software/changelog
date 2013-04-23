@@ -3,3 +3,4 @@
 2.0.0: Support for protocol 2.0
 2.0.1: Add support for custom characters
 2.0.2: Add default text functionality
+2.0.3: Fix cursor position logic at end of line

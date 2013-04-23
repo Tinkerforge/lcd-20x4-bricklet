@@ -1,5 +1,6 @@
 /* lcd-bricklet
  * Copyright (C) 2011-2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2013 Matthias Bolte <matthias@tinkerforge.com>
  *
  * lcd.c: Implementation of LCD Bricklet messages
  *
@@ -112,6 +113,8 @@ void sleep_us(uint16_t t) {
 }
 
 void constructor(void) {
+	_Static_assert(sizeof(BrickContext) <= BRICKLET_CONTEXT_MAX_SIZE, "BrickContext too big");
+
     PIN_BUTTON_3.type = PIO_INPUT;
     PIN_BUTTON_3.attribute = PIO_PULLDOWN;
     BA->PIO_Configure(&PIN_BUTTON_3, 1);
@@ -201,6 +204,9 @@ void constructor(void) {
     BC->default_text[2][0] = '\0';
     BC->default_text[3][0] = '\0';
     BC->default_text_counter = -1;
+
+	BC->line = 0;
+	BC->position = 0;
 }
 
 void destructor(void) {
@@ -252,6 +258,16 @@ void make_callback(uint8_t i, uint8_t fid, bool state) {
 		BA->send_blocking_with_timeout(&bps,
 									   sizeof(ButtonPressedCallback),
 									   *BA->com_current);
+	}
+}
+
+void lcd_command(const uint8_t a, const uint8_t b, const uint16_t sleep) {
+	lcd_set_a(a);
+	lcd_set_b(b);
+	lcd_enable();
+
+	if(sleep > 0) {
+		sleep_us(sleep);
 	}
 }
 
@@ -332,15 +348,8 @@ void lcd_putchar(const char c) {
 	sleep_us(LCD_TIME_US_SET_DATA);
 }
 
-void lcd_putstr(const char *c) {
-	while(*c != '\0') {
-		lcd_putchar(*c);
-		c++;
-	}
-}
-
 void lcd_move_cursor(const uint8_t line, const uint8_t position) {
-	uint8_t command = LCD_SET_DDADR + position;;
+	uint8_t command = LCD_SET_DDADR + position;
 	switch(line) {
 		case 0:
 			command += LCD_OFFSET_LINE0;
@@ -359,15 +368,16 @@ void lcd_move_cursor(const uint8_t line, const uint8_t position) {
 			return;
 	}
 
-	lcd_set_a(0);
-	lcd_set_b(command);
-	lcd_enable();
-	sleep_us(LCD_TIME_US_SET_MODE);
+	BC->line = line;
+	BC->position = position;
+
+	lcd_command(0, command, LCD_TIME_US_SET_MODE);
 }
 
 void write_line_impl(const uint8_t line, const uint8_t position, const char *text) {
 	lcd_move_cursor(line, position);
-	for(int8_t i = 0; i < MAX_LENGTH - position; i++) {
+	int8_t i;
+	for(i = 0; i < MAX_LENGTH - position; i++) {
 		if(text[i] == '\0') {
 			break;
 		}
@@ -376,6 +386,11 @@ void write_line_impl(const uint8_t line, const uint8_t position, const char *tex
 		} else {
 			lcd_putchar(text[i]);
 		}
+	}
+	if(position + i >= MAX_LENGTH) {
+		lcd_move_cursor((line + 1) % 4, 0);
+	} else {
+		BC->position += i;
 	}
 }
 
@@ -391,12 +406,12 @@ void write_line(const ComType com, const WriteLine *data) {
 }
 
 void clear_display(const ComType com, const ClearDisplay *data) {
-	lcd_set_a(0);
-	lcd_set_b(LCD_CLEAR_DISPLAY);
-	lcd_enable();
+	lcd_command(0, LCD_CLEAR_DISPLAY, LCD_TIME_US_CLEAR_DISPLAY);
+
+	BC->line = 0;
+	BC->position = 0;
 
 	BA->com_return_setter(com, data);
-	sleep_us(LCD_TIME_US_CLEAR_DISPLAY);
 }
 
 void set_config(const ComType com, const SetConfig *data) {
@@ -411,12 +426,12 @@ void set_config(const ComType com, const SetConfig *data) {
 		BC->cursor = LCD_CURSOR_OFF;
 	}
 
-	lcd_set_a(0);
-	lcd_set_b(LCD_SET_DISPLAY  |
-			  LCD_DISPLAY_ON   |
-			  BC->cursor       |
-			  BC->blinking);
-	lcd_enable();
+	lcd_command(0,
+	            LCD_SET_DISPLAY |
+	            LCD_DISPLAY_ON  |
+	            BC->cursor      |
+	            BC->blinking,
+	            0);
 
 	BA->com_return_setter(com, data);
 }
@@ -493,10 +508,7 @@ void set_custom_character(const ComType com, const SetCustomCharacter *data) {
 		BA->com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 	}
 
-	lcd_set_b(LCD_SET_CGADR | data->index*8);
-	lcd_set_a(0);
-	lcd_enable();
-	sleep_us(LCD_TIME_US_SET_DATA);
+	lcd_command(0, LCD_SET_CGADR | data->index * 8, LCD_TIME_US_SET_DATA);
 
 	if(!(BC->port_a & LCD_RS)) {
 		lcd_set_a(LCD_RS);
@@ -507,6 +519,8 @@ void set_custom_character(const ComType com, const SetCustomCharacter *data) {
 		lcd_enable();
 		sleep_us(LCD_TIME_US_SET_DATA);
 	}
+
+	lcd_move_cursor(BC->line, BC->position); // restore cursor position
 
 	BA->com_return_setter(com, data);
 }
@@ -521,10 +535,7 @@ void get_custom_character(const ComType com, const GetCustomCharacter *data) {
 	gccr.header        = data->header;
 	gccr.header.length = sizeof(GetCustomCharacterReturn);
 
-	lcd_set_b(LCD_SET_CGADR | data->index*8);
-	lcd_set_a(0);
-	lcd_enable();
-	sleep_us(LCD_TIME_US_SET_DATA);
+	lcd_command(0, LCD_SET_CGADR | data->index * 8, LCD_TIME_US_SET_DATA);
 
 	io_write(I2C_INTERNAL_ADDRESS_IODIR_B, 0xFF);
 	lcd_set_a(LCD_RS | LCD_RW);
@@ -538,6 +549,8 @@ void get_custom_character(const ComType com, const GetCustomCharacter *data) {
 
 	lcd_set_a(LCD_RS);
 	io_write(I2C_INTERNAL_ADDRESS_IODIR_B, 0);
+
+	lcd_move_cursor(BC->line, BC->position); // restore cursor position
 
 	BA->send_blocking_with_timeout(&gccr, sizeof(GetCustomCharacterReturn), com);
 }
