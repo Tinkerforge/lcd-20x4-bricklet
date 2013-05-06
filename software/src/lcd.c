@@ -115,11 +115,14 @@ void sleep_us(uint16_t t) {
 void constructor(void) {
 	_Static_assert(sizeof(BrickContext) <= BRICKLET_CONTEXT_MAX_SIZE, "BrickContext too big");
 
-    PIN_BUTTON_3.type = PIO_INPUT;
+    PIN_BUTTON_3.type = PIO_OUTPUT_0;
+    PIN_BUTTON_3.attribute = PIO_DEFAULT;
+    BA->PIO_Configure(&PIN_BUTTON_3, 1);
+    sleep_us(1000);
+
     PIN_BUTTON_3.attribute = PIO_PULLDOWN;
     BA->PIO_Configure(&PIN_BUTTON_3, 1);
-
-    sleep_us(200);
+    sleep_us(1000);
 
     BC->hardware_version[0] = 1;
     BC->hardware_version[2] = 0;
@@ -195,15 +198,10 @@ void constructor(void) {
 	lcd_enable();
 	sleep_us(LCD_TIME_US_CLEAR_DISPLAY);
 
-    BC->button_pressed[0] = true;
-    BC->button_pressed[1] = true;
-    BC->button_pressed[2] = true;
-    BC->button_pressed[3] = true;
-    BC->default_text[0][0] = '\0';
-    BC->default_text[1][0] = '\0';
-    BC->default_text[2][0] = '\0';
-    BC->default_text[3][0] = '\0';
-    BC->default_text_counter = -1;
+	for(uint8_t i = 0; i < 4; i++) {
+		BC->button_pressed[i] = true;
+		BC->default_text[i][0] = '\0';
+	}
 
 	BC->line = 0;
 	BC->position = 0;
