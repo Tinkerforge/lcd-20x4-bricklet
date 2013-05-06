@@ -203,6 +203,7 @@ void constructor(void) {
 		BC->default_text[i][0] = '\0';
 	}
 
+	BC->default_text_counter = -1;
 	BC->line = 0;
 	BC->position = 0;
 }
@@ -228,11 +229,7 @@ void tick(const uint8_t tick_type) {
 		}
 
 		for(uint8_t i = 0; i < for_to; i++) {
-			if(pressed[i]) {
-				make_callback(i, FID_BUTTON_RELEASED, false);
-			} else {
-				make_callback(i, FID_BUTTON_PRESSED, true);
-			}
+			make_callback(i, pressed[i] ? FID_BUTTON_RELEASED : FID_BUTTON_PRESSED, !pressed[i]);
 		}
 	} else if(tick_type & TICK_TASK_TYPE_CALCULATION) {
 		if(BC->default_text_counter > -1) {
