@@ -1,5 +1,5 @@
 /* lcd-bricklet
- * Copyright (C) 2011-2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2011-2013 Olaf Lüke <olaf@tinkerforge.com>
  * Copyright (C) 2013 Matthias Bolte <matthias@tinkerforge.com>
  *
  * lcd.c: Implementation of LCD Bricklet messages
@@ -28,6 +28,9 @@
 #include "config.h"
 #include "bricklib/utility/util_definitions.h"
 #include "bricklib/utility/init.h"
+
+#define FORCE_HW_VERSION_11
+//#define FORCE_HW_VERSION_12
 
 void invocation(const ComType com, const uint8_t *data) {
 	switch(((MessageHeader*)data)->fid) {
@@ -115,24 +118,14 @@ void sleep_us(uint16_t t) {
 void constructor(void) {
 	_Static_assert(sizeof(BrickContext) <= BRICKLET_CONTEXT_MAX_SIZE, "BrickContext too big");
 
-    PIN_BUTTON_3.type = PIO_OUTPUT_0;
-    PIN_BUTTON_3.attribute = PIO_DEFAULT;
-    BA->PIO_Configure(&PIN_BUTTON_3, 1);
-    sleep_us(1000);
-
-    PIN_BUTTON_3.attribute = PIO_PULLDOWN;
-    BA->PIO_Configure(&PIN_BUTTON_3, 1);
-    sleep_us(1000);
-
     BC->hardware_version[0] = 1;
     BC->hardware_version[2] = 0;
-    if(PIN_BUTTON_3.pio->PIO_PDSR & PIN_BUTTON_3.mask) {
-        BC->hardware_version[1] = 1;
-    	BC->button_3_available = false;
-    } else {
-        BC->hardware_version[1] = 2;
-    	BC->button_3_available = true;
-    }
+#ifdef FORCE_HW_VERSION_11
+	BC->hardware_version[1] = 1;
+#endif
+#ifdef FORCE_HW_VERSION_12
+	BC->hardware_version[1] = 2;
+#endif
 
     PIN_BUTTON_0.type = PIO_INPUT;
     PIN_BUTTON_0.attribute = PIO_PULLUP;
@@ -146,17 +139,16 @@ void constructor(void) {
     PIN_BUTTON_2.attribute = PIO_PULLUP;
     BA->PIO_Configure(&PIN_BUTTON_2, 1);
 
-    if(BC->button_3_available) {
-        PIN_BUTTON_3.type = PIO_INPUT;
-        PIN_BUTTON_3.attribute = PIO_DEFAULT;
-        BA->PIO_Configure(&PIN_BUTTON_3, 1);
-        PIN_BUTTON_3.attribute = PIO_PULLUP;
-        BA->PIO_Configure(&PIN_BUTTON_3, 1);
-    } else {
-        PIN_RESET.type = PIO_OUTPUT_1;
-        PIN_RESET.attribute = PIO_DEFAULT;
-        BA->PIO_Configure(&PIN_RESET, 1);
-    }
+#ifdef FORCE_HW_VERSION_12
+    PIN_BUTTON_3.type = PIO_INPUT;
+	PIN_BUTTON_3.attribute = PIO_PULLUP;
+	BA->PIO_Configure(&PIN_BUTTON_3, 1);
+#endif
+#ifdef FORCE_HW_VERSION_11
+    PIN_RESET.type = PIO_OUTPUT_1;
+    PIN_RESET.attribute = PIO_DEFAULT;
+    BA->PIO_Configure(&PIN_RESET, 1);
+#endif
 
 	// Make all pins output
 	io_write(I2C_INTERNAL_ADDRESS_IODIR_A, 0);
@@ -221,12 +213,13 @@ void tick(const uint8_t tick_type) {
 		pressed[1] = PIN_BUTTON_1.pio->PIO_PDSR & PIN_BUTTON_1.mask;
 		pressed[2] = PIN_BUTTON_2.pio->PIO_PDSR & PIN_BUTTON_2.mask;
 
+#ifdef FORCE_HW_VERSION_12
 		uint8_t for_to = NUM_BUTTON;
-		if(BC->button_3_available) {
-			pressed[3] = PIN_BUTTON_3.pio->PIO_PDSR & PIN_BUTTON_3.mask;
-		} else {
-			for_to = NUM_BUTTON-1;
-		}
+		pressed[3] = PIN_BUTTON_3.pio->PIO_PDSR & PIN_BUTTON_3.mask;
+#endif
+#ifdef FORCE_HW_VERSION_11
+		uint8_t for_to = NUM_BUTTON-1;
+#endif
 
 		for(uint8_t i = 0; i < for_to; i++) {
 			make_callback(i, pressed[i] ? FID_BUTTON_RELEASED : FID_BUTTON_PRESSED, !pressed[i]);
@@ -474,21 +467,22 @@ void is_button_pressed(const ComType com, const IsButtonPressed *data) {
 
 	switch(data->button) {
 		case 0:
-			ibpr.pressed =!(PIN_BUTTON_0.pio->PIO_PDSR & PIN_BUTTON_0.mask);
+			ibpr.pressed = !(PIN_BUTTON_0.pio->PIO_PDSR & PIN_BUTTON_0.mask);
 			break;
 		case 1:
-			ibpr.pressed =!(PIN_BUTTON_1.pio->PIO_PDSR & PIN_BUTTON_1.mask);
+			ibpr.pressed = !(PIN_BUTTON_1.pio->PIO_PDSR & PIN_BUTTON_1.mask);
 			break;
 		case 2:
-			ibpr.pressed =!(PIN_BUTTON_2.pio->PIO_PDSR & PIN_BUTTON_2.mask);
+			ibpr.pressed = !(PIN_BUTTON_2.pio->PIO_PDSR & PIN_BUTTON_2.mask);
 			break;
 		case 3:
-			if(BC->button_3_available) {
-				ibpr.pressed =!(PIN_BUTTON_3.pio->PIO_PDSR & PIN_BUTTON_3.mask);
-			} else {
-				BA->com_return_error(data, sizeof(IsButtonPressedReturn), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
-				return;
-			}
+#ifdef FORCE_HW_VERSION_12
+			ibpr.pressed = !(PIN_BUTTON_3.pio->PIO_PDSR & PIN_BUTTON_3.mask);
+#endif
+#ifdef FORCE_HW_VERSION_11
+			BA->com_return_error(data, sizeof(IsButtonPressedReturn), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
+			return;
+#endif
 			break;
 		default:
 			BA->com_return_error(data, sizeof(IsButtonPressedReturn), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);

@@ -1,5 +1,5 @@
 /* lcd-bricklet
- * Copyright (C) 2011-2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2011-2013 Olaf Lüke <olaf@tinkerforge.com>
  * Copyright (C) 2013 Matthias Bolte <matthias@tinkerforge.com>
  *
  * config.h: LCD Bricklet specific configuration
@@ -32,7 +32,7 @@
 
 #define BRICKLET_FIRMWARE_VERSION_MAJOR 2
 #define BRICKLET_FIRMWARE_VERSION_MINOR 0
-#define BRICKLET_FIRMWARE_VERSION_REVISION 5
+#define BRICKLET_FIRMWARE_VERSION_REVISION 6
 
 #define BRICKLET_DEVICE_IDENTIFIER 212
 
@@ -50,7 +50,6 @@
 
 typedef struct {
 	bool button_pressed[NUM_BUTTON];
-	bool button_3_available;
 	uint8_t port_a;
 	uint8_t port_b;
 	uint8_t cursor;
