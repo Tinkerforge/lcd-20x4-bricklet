@@ -10,14 +10,16 @@ use constant UID => 'jup'; # Change to your UID
 # Callback functions for button status
 sub cb_pressed
 {
-	my ($i) = @_;
+    my ($i) = @_;
+
     print "\nPressed: $i\n";
 }
 
 
-sub cb_released(i)
+sub cb_released
 {
-	my ($i) = @_;
+    my ($i) = @_;
+
     print "\nRealeased: $i\n";
 }
 
