@@ -23,8 +23,8 @@ sub cb_released
     print "\nRealeased: $i\n";
 }
 
-my $ipcon = IPConnection->new(); # Create IP connection
-my $lcd = BrickletLCD20x4->new(&UID, $ipcon); # Create device object
+my $ipcon = Tinkerforge::IPConnection->new(); # Create IP connection
+my $lcd = Tinkerforge::BrickletLCD20x4->new(&UID, $ipcon); # Create device object
 
 $ipcon->connect(&HOST, &PORT); # Connect to brickd
 # Don't use device before ipcon is connected
