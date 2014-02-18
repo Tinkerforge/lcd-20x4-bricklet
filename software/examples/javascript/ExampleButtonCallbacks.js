@@ -1,12 +1,11 @@
-var IPConnection = require('Tinkerforge/IPConnection');
-var BrickletLCD20x4 = require('Tinkerforge/BrickletLCD20x4');
+var Tinkerforge = require('tinkerforge');
 
 var HOST = 'localhost';
 var PORT = 4223;
 var UID = 'SCD32';// Change to your UID
 
-var ipcon = new IPConnection();// Create IP connection
-var lcd = new BrickletLCD20x4(UID, ipcon);// Create device object
+var ipcon = new Tinkerforge.IPConnection();// Create IP connection
+var lcd = new Tinkerforge.BrickletLCD20x4(UID, ipcon);// Create device object
 
 ipcon.connect(HOST, PORT,
     function(error) {
@@ -17,12 +16,12 @@ ipcon.connect(HOST, PORT,
 // Don't use device before ipcon is connected
 
 // Register button status callbacks
-lcd.on(BrickletLCD20x4.CALLBACK_BUTTON_PRESSED,
+lcd.on(Tinkerforge.BrickletLCD20x4.CALLBACK_BUTTON_PRESSED,
     function(buttonNumber) {
         console.log('Pressed: '+buttonNumber);
     }
 );
-lcd.on(BrickletLCD20x4.CALLBACK_BUTTON_RELEASED,
+lcd.on(Tinkerforge.BrickletLCD20x4.CALLBACK_BUTTON_RELEASED,
     function(buttonNumber) {
         console.log('Released: '+buttonNumber);
     }
