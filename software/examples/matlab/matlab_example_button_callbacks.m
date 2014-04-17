@@ -13,17 +13,17 @@ function matlab_example_button_callbacks
     % Don't use device before ipcon is connected
 
     % Register button status callbacks to cb_pressed and cb_released
-    set(lcd, 'ButtonPressedCallback', @(h, e)cb_pressed(e.button));
-    set(lcd, 'ButtonReleasedCallback', @(h, e)cb_released(e.button));
+    set(lcd, 'ButtonPressedCallback', @(h, e) cb_pressed(e));
+    set(lcd, 'ButtonReleasedCallback', @(h, e) cb_released(e));
 
-    input('\nPress any key to exit...\n', 's');
+    input('Press any key to exit...\n', 's');
     ipcon.disconnect();
 end
 
 % Callback functions for button status
-function cb_pressed(i)
-    fprintf('Pressed: %i\n', i);
+function cb_pressed(e)
+    fprintf('Pressed: %i\n', e.button);
 end
-function cb_released(i)
-    fprintf('Released: %i\n', i);
+function cb_released(e)
+    fprintf('Released: %i\n', e.button);
 end

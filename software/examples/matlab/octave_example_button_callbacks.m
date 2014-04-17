@@ -12,18 +12,18 @@ function octave_example_button_callbacks
     % Don't use device before ipcon is connected
 
     % Register button status callbacks to cb_pressed and cb_released
-    lcd.addButtonPressedListener("cb_pressed");
-    lcd.addButtonReleasedListener("cb_released");
+    lcd.addButtonPressedCallback(@cb_pressed);
+    lcd.addButtonReleasedLCallback(@cb_released);
 
-    input("\nPress any key to exit...\n", "s");
+    input("Press any key to exit...\n", "s");
     ipcon.disconnect();
 end
 
 % Callback functions for button status
-function cb_pressed(i)
-    fprintf("Pressed: %s\n", i.toString());
+function cb_pressed(e)
+    fprintf("Pressed: %s\n", e.button.toString());
 end
 
-function cb_released(i)
-    fprintf("Released: %s\n", i.toString());
+function cb_released(e)
+    fprintf("Released: %s\n", e.button.toString());
 end

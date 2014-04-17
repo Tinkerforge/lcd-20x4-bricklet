@@ -17,7 +17,7 @@ function octave_example_hello_world
     % Write "Hello World"
     lcd.writeLine(0, 0, "Hello World");
 
-    input("\nPress any key to exit...\n", "s");
+    input("Press any key to exit...\n", "s");
     ipcon.disconnect();
 end
 
