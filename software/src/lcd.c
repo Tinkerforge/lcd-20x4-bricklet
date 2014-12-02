@@ -29,8 +29,8 @@
 #include "bricklib/utility/util_definitions.h"
 #include "bricklib/utility/init.h"
 
-#define FORCE_HW_VERSION_11
-//#define FORCE_HW_VERSION_12
+//#define FORCE_HW_VERSION_11
+#define FORCE_HW_VERSION_12
 
 void invocation(const ComType com, const uint8_t *data) {
 	switch(((MessageHeader*)data)->fid) {

@@ -108,8 +108,8 @@ class Example
 		// Write a string directly including characters from the LCD charset
 		lcd.WriteLine(2, 0, "Drehzahl:   750min\xe9");
 
-		System.Console.WriteLine("Press key to exit");
-		System.Console.ReadKey();
+		System.Console.WriteLine("Press enter to exit");
+		System.Console.ReadLine();
 		ipcon.Disconnect();
 	}
 }
