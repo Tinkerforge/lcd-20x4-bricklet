@@ -5,7 +5,7 @@ class Example
 {
 	private static string HOST = "localhost";
 	private static int PORT = 4223;
-	private static string UID = "6mJ"; // Change to your UID
+	private static string UID = "XYZ"; // Change to your UID
 
 	// Maps a normal UTF-16 encoded string to the LCD charset
 	static string UTF16ToKS0066U(string utf16)
@@ -93,17 +93,17 @@ class Example
 	static void Main()
 	{
 		IPConnection ipcon = new IPConnection(); // Create IP connection
-		BrickletLCD20x4 lcd = new BrickletLCD20x4(UID, ipcon); // Create device object
+		BrickletLCD20x4 lcd204 = new BrickletLCD20x4(UID, ipcon); // Create device object
 
 		ipcon.Connect(HOST, PORT); // Connect to brickd
 		// Don't use device before ipcon is connected
 
 		// Turn backlight on
-		lcd.BacklightOn();
+		lcd204.BacklightOn();
 
 		// Write some strings using the UTF16ToKS0066U function to map to the LCD charset
-		lcd.WriteLine(0, 0, UTF16ToKS0066U("Stromstärke: 17µA"));
-		lcd.WriteLine(1, 0, UTF16ToKS0066U("Temperatur:  23°C"));
+		lcd204.WriteLine(0, 0, UTF16ToKS0066U("Stromstärke: 17µA"));
+		lcd204.WriteLine(1, 0, UTF16ToKS0066U("Temperatur:  23°C"));
 
 		// Write a string directly including characters from the LCD charset
 		lcd.WriteLine(2, 0, "Drehzahl:   750min\xe9");
