@@ -91,20 +91,20 @@ def unicode_to_ks0066u(string)
 end
 
 ipcon = IPConnection.new # Create IP connection
-lcd204 = BrickletLCD20x4.new UID, ipcon # Create device object
+lcd = BrickletLCD20x4.new UID, ipcon # Create device object
 
 ipcon.connect HOST, PORT # Connect to brickd
 # Don't use device before ipcon is connected
 
 # Turn backlight on
-lcd204.backlight_on
+lcd.backlight_on
 
 # Write a string using the unicode_to_ks0066u function to map to the LCD charset
-lcd204.write_line 0, 0, unicode_to_ks0066u('Stromstärke: 17µA')
-lcd204.write_line 1, 0, unicode_to_ks0066u('Temperatur:  23°C')
+lcd.write_line 0, 0, unicode_to_ks0066u('Stromstärke: 17µA')
+lcd.write_line 1, 0, unicode_to_ks0066u('Temperatur:  23°C')
 
 # Write a string directly including characters from the LCD charset
-lcd204.write_line 2, 0, "Drehzahl:   750min\xe9"
+lcd.write_line 2, 0, "Drehzahl:   750min\xe9"
 
 puts 'Press key to exit'
 $stdin.gets

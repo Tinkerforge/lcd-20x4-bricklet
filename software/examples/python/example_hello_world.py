@@ -10,16 +10,16 @@ from tinkerforge.bricklet_lcd_20x4 import LCD20x4
 
 if __name__ == "__main__":
     ipcon = IPConnection() # Create IP connection
-    lcd204 = LCD20x4(UID, ipcon) # Create device object
+    lcd = LCD20x4(UID, ipcon) # Create device object
 
     ipcon.connect(HOST, PORT) # Connect to brickd
     # Don't use device before ipcon is connected
 
     # Turn backlight on
-    lcd204.backlight_on()
+    lcd.backlight_on()
 
     # Write "Hello World"
-    lcd204.write_line(0, 0, 'Hello World')
+    lcd.write_line(0, 0, 'Hello World')
 
     raw_input('Press key to exit\n') # Use input() in Python 3
     ipcon.disconnect()

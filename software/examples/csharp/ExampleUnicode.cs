@@ -93,17 +93,17 @@ class Example
 	static void Main()
 	{
 		IPConnection ipcon = new IPConnection(); // Create IP connection
-		BrickletLCD20x4 lcd204 = new BrickletLCD20x4(UID, ipcon); // Create device object
+		BrickletLCD20x4 lcd = new BrickletLCD20x4(UID, ipcon); // Create device object
 
 		ipcon.Connect(HOST, PORT); // Connect to brickd
 		// Don't use device before ipcon is connected
 
 		// Turn backlight on
-		lcd204.BacklightOn();
+		lcd.BacklightOn();
 
 		// Write some strings using the UTF16ToKS0066U function to map to the LCD charset
-		lcd204.WriteLine(0, 0, UTF16ToKS0066U("Stromstärke: 17µA"));
-		lcd204.WriteLine(1, 0, UTF16ToKS0066U("Temperatur:  23°C"));
+		lcd.WriteLine(0, 0, UTF16ToKS0066U("Stromstärke: 17µA"));
+		lcd.WriteLine(1, 0, UTF16ToKS0066U("Temperatur:  23°C"));
 
 		// Write a string directly including characters from the LCD charset
 		lcd.WriteLine(2, 0, "Drehzahl:   750min\xe9");
