@@ -1,9 +1,26 @@
-1.0.0: Initial version
-1.1.0: Add support for tick types
-2.0.0: Support for protocol 2.0
-2.0.1: Add support for custom characters
-2.0.2: Add default text functionality
-2.0.3: Fix cursor position logic at end of line
-2.0.4: Fix HW version detection if Servo Brick port a is used
-2.0.5: Add accidentially removed default_text_counter again (thanks to Jan Sandbrink)
-2.0.6: Split Firmware in HW Version 1.1 and 1.2
+1.0.0:
+- Initial version
+
+1.1.0:
+- Add support for tick types
+
+2.0.0:
+- Support for Protocol 2.0
+
+2.0.1:
+- Add support for custom characters
+
+2.0.2:
+- Add default text functionality
+
+2.0.3:
+- Fix cursor position logic at end of line
+
+2.0.4:
+- Fix hardware version detection if Servo Brick port a is used
+
+2.0.5:
+- Add accidentially removed default_text_counter again (thanks to Jan Sandbrink)
+
+2.0.6:
+- Split firmware in two for hardware version 1.1 and 1.2
