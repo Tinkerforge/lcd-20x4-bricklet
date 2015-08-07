@@ -8,7 +8,7 @@ UID = "XYZ" # Change to your UID
 import sys
 import types
 from tinkerforge.ip_connection import IPConnection
-from tinkerforge.bricklet_lcd_20x4 import LCD20x4
+from tinkerforge.bricklet_lcd_20x4 import BrickletLCD20x4
 
 # Maps a Python string to the LCD charset
 def unicode_to_ks0066u(string):
@@ -98,7 +98,7 @@ def unicode_to_ks0066u(string):
 
 if __name__ == "__main__":
     ipcon = IPConnection() # Create IP connection
-    lcd = LCD20x4(UID, ipcon) # Create device object
+    lcd = BrickletLCD20x4(UID, ipcon) # Create device object
 
     ipcon.connect(HOST, PORT) # Connect to brickd
     # Don't use device before ipcon is connected
