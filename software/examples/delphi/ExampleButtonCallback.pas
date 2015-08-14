@@ -12,28 +12,29 @@ type
     ipcon: TIPConnection;
     lcd: TBrickletLCD20x4;
   public
-    procedure PressedCB(sender: TBrickletLCD20x4; const i: byte);
-    procedure ReleasedCB(sender: TBrickletLCD20x4; const i: byte);
+    procedure ButtonPressedCB(sender: TBrickletLCD20x4; const buttonPressed: byte);
+    procedure ButtonReleasedCB(sender: TBrickletLCD20x4; const buttonReleased: byte);
     procedure Execute;
   end;
 
 const
   HOST = 'localhost';
   PORT = 4223;
-  UID = '9qL'; { Change to your UID }
+  UID = 'XYZ'; { Change to your UID }
 
 var
   e: TExample;
 
-{ Callback functions for button status }
-procedure TExample.PressedCB(sender: TBrickletLCD20x4; const i: byte);
+{ Callback procedure for button pressed callback }
+procedure TExample.ButtonPressedCB(sender: TBrickletLCD20x4; const buttonPressed: byte);
 begin
-  WriteLn(Format('Pressed: %d', [i]));
+  WriteLn(Format('Button Pressed: %d', [buttonPressed]));
 end;
 
-procedure TExample.ReleasedCB(sender: TBrickletLCD20x4; const i: byte);
+{ Callback procedure for button released callback }
+procedure TExample.ButtonReleasedCB(sender: TBrickletLCD20x4; const buttonReleased: byte);
 begin
-  WriteLn(Format('Released: %d', [i]));
+  WriteLn(Format('Button Released: %d', [buttonReleased]));
 end;
 
 procedure TExample.Execute;
@@ -48,9 +49,11 @@ begin
   ipcon.Connect(HOST, PORT);
   { Don't use device before ipcon is connected }
 
-  { Register button status callbacks to procedure PressedCB and ReleasedCB }
-  lcd.OnButtonPressed := {$ifdef FPC}@{$endif}PressedCB;
-  lcd.OnButtonReleased := {$ifdef FPC}@{$endif}ReleasedCB;
+  { Register button pressed callback to procedure ButtonPressedCB }
+  lcd.OnButtonPressed := {$ifdef FPC}@{$endif}ButtonPressedCB;
+
+  { Register button released callback to procedure ButtonReleasedCB }
+  lcd.OnButtonReleased := {$ifdef FPC}@{$endif}ButtonReleasedCB;
 
   WriteLn('Press key to exit');
   ReadLn;
