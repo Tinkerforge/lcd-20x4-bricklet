@@ -16,4 +16,4 @@ tinkerforge call lcd-20x4-bricklet $uid write-line 1 0\
 
 # write a string directly including characters from the LCD charset
 tinkerforge call lcd-20x4-bricklet $uid write-line 2 0\
- "`echo -e 'Drehzahl:   750min\xe9'`"
+ "`printf 'Drehzahl:   750min\xe9'`"
