@@ -89,8 +89,8 @@ public class ExampleUnicode {
 		return ks0066u;
 	}
 
-	// Note: To make the example code cleaner we do not handle exceptions. Exceptions you
-	//       might normally want to catch are described in the documentation
+	// Note: To make the example code cleaner we do not handle exceptions. Exceptions
+	//       you might normally want to catch are described in the documentation
 	public static void main(String args[]) throws Exception {
 		IPConnection ipcon = new IPConnection(); // Create IP connection
 		BrickletLCD20x4 lcd = new BrickletLCD20x4(UID, ipcon); // Create device object

@@ -6,8 +6,8 @@ public class ExampleButtonCallback {
 	private static final int PORT = 4223;
 	private static final String UID = "XYZ"; // Change to your UID
 
-	// Note: To make the example code cleaner we do not handle exceptions. Exceptions you
-	//       might normally want to catch are described in the documentation
+	// Note: To make the example code cleaner we do not handle exceptions. Exceptions
+	//       you might normally want to catch are described in the documentation
 	public static void main(String args[]) throws Exception {
 		IPConnection ipcon = new IPConnection(); // Create IP connection
 		BrickletLCD20x4 lcd = new BrickletLCD20x4(UID, ipcon); // Create device object
@@ -17,15 +17,15 @@ public class ExampleButtonCallback {
 
 		// Add button pressed listener
 		lcd.addButtonPressedListener(new BrickletLCD20x4.ButtonPressedListener() {
-			public void buttonPressed(short buttonPressed) {
-				System.out.println("Button Pressed: " + buttonPressed);
+			public void buttonPressed(short button) {
+				System.out.println("Button Pressed: " + button);
 			}
 		});
 
 		// Add button released listener
 		lcd.addButtonReleasedListener(new BrickletLCD20x4.ButtonReleasedListener() {
-			public void buttonReleased(short buttonReleased) {
-				System.out.println("Button Released: " + buttonReleased);
+			public void buttonReleased(short button) {
+				System.out.println("Button Released: " + button);
 			}
 		});
 

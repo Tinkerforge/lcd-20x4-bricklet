@@ -8,7 +8,7 @@ use Tinkerforge\BrickletLCD20x4;
 
 const HOST = 'localhost';
 const PORT = 4223;
-const UID = '6mJ'; // Change to your UID
+const UID = 'XYZ'; // Change to your UID
 
 $ipcon = new IPConnection(); // Create IP connection
 $lcd = new BrickletLCD20x4(UID, $ipcon); // Create device object

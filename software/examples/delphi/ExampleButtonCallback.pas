@@ -12,8 +12,8 @@ type
     ipcon: TIPConnection;
     lcd: TBrickletLCD20x4;
   public
-    procedure ButtonPressedCB(sender: TBrickletLCD20x4; const buttonPressed: byte);
-    procedure ButtonReleasedCB(sender: TBrickletLCD20x4; const buttonReleased: byte);
+    procedure ButtonPressedCB(sender: TBrickletLCD20x4; const button: byte);
+    procedure ButtonReleasedCB(sender: TBrickletLCD20x4; const button: byte);
     procedure Execute;
   end;
 
@@ -26,15 +26,15 @@ var
   e: TExample;
 
 { Callback procedure for button pressed callback }
-procedure TExample.ButtonPressedCB(sender: TBrickletLCD20x4; const buttonPressed: byte);
+procedure TExample.ButtonPressedCB(sender: TBrickletLCD20x4; const button: byte);
 begin
-  WriteLn(Format('Button Pressed: %d', [buttonPressed]));
+  WriteLn(Format('Button Pressed: %d', [button]));
 end;
 
 { Callback procedure for button released callback }
-procedure TExample.ButtonReleasedCB(sender: TBrickletLCD20x4; const buttonReleased: byte);
+procedure TExample.ButtonReleasedCB(sender: TBrickletLCD20x4; const button: byte);
 begin
-  WriteLn(Format('Button Released: %d', [buttonReleased]));
+  WriteLn(Format('Button Released: %d', [button]));
 end;
 
 procedure TExample.Execute;
