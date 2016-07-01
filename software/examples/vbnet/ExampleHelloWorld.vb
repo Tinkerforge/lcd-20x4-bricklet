@@ -4,7 +4,7 @@ Imports Tinkerforge
 Module ExampleHelloWorld
     Const HOST As String = "localhost"
     Const PORT As Integer = 4223
-    Const UID As String = "XYZ" ' Change to your UID
+    Const UID As String = "XYZ" ' Change XYZ to the UID of your LCD 20x4 Bricklet
 
     Sub Main()
         Dim ipcon As New IPConnection() ' Create IP connection
