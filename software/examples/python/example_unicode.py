@@ -6,7 +6,6 @@ PORT = 4223
 UID = "XYZ" # Change XYZ to the UID of your LCD 20x4 Bricklet
 
 import sys
-import types
 from tinkerforge.ip_connection import IPConnection
 from tinkerforge.bricklet_lcd_20x4 import BrickletLCD20x4
 
@@ -16,7 +15,7 @@ def unicode_to_ks0066u(string):
         byte = lambda x: chr(x)
         ks0066u = ''
 
-        if type(string) != types.UnicodeType:
+        if not isinstance(string, unicode):
             code_points = unicode(string, 'UTF-8')
         else:
             code_points = string
