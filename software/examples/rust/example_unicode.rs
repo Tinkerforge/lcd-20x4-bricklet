@@ -1,6 +1,6 @@
 use std::{error::Error, io};
 
-use tinkerforge::{ipconnection::IpConnection, lcd_20x4_bricklet::*};
+use tinkerforge::{ip_connection::IpConnection, lcd_20x4_bricklet::*};
 
 const HOST: &str = "127.0.0.1";
 const PORT: u16 = 4223;
@@ -76,17 +76,17 @@ fn utf8_to_ks0066u(utf8: &str) -> String {
 
 fn main() -> Result<(), Box<dyn Error>> {
     let ipcon = IpConnection::new(); // Create IP connection
-    let lcd_20x4_bricklet = LCD20x4Bricklet::new(UID, &ipcon); // Create device object
+    let lcd = Lcd20x4Bricklet::new(UID, &ipcon); // Create device object
 
-    ipcon.connect(HOST, PORT).recv()??; // Connect to brickd
-                                        // Don't use device before ipcon is connected
+    ipcon.connect((HOST, PORT)).recv()??; // Connect to brickd
+                                          // Don't use device before ipcon is connected
 
     // Turn backlight on
-    lcd_20x4_bricklet.backlight_on();
+    lcd.backlight_on();
 
     // Write some strings using the UTF16ToKS0066U function to map to the LCD charset
-    lcd_20x4_bricklet.write_line(0, 0, utf8_to_ks0066u("Stromstärke: 17µA"));
-    lcd_20x4_bricklet.write_line(1, 0, utf8_to_ks0066u("Temperatur:  23°C"));
+    lcd.write_line(0, 0, utf8_to_ks0066u("Stromstärke: 17µA"));
+    lcd.write_line(1, 0, utf8_to_ks0066u("Temperatur:  23°C"));
 
     // Write a string directly including characters from the LCD charset
     let string = unsafe {
@@ -94,7 +94,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         bytes.push(0xe9); //^-1 character
         String::from_utf8_unchecked(bytes)
     };
-    lcd_20x4_bricklet.write_line(2, 0, string);
+    lcd.write_line(2, 0, string);
 
     println!("Press enter to exit.");
     let mut _input = String::new();

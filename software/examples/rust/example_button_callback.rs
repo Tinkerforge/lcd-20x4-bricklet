@@ -1,34 +1,36 @@
 use std::{error::Error, io, thread};
-use tinkerforge::{ipconnection::IpConnection, lcd_20x4_bricklet::*};
+use tinkerforge::{ip_connection::IpConnection, lcd_20x4_bricklet::*};
 
-const HOST: &str = "127.0.0.1";
+const HOST: &str = "localhost";
 const PORT: u16 = 4223;
-const UID: &str = "XYZ"; // Change XYZ to the UID of your LCD 20x4 Bricklet
+const UID: &str = "XYZ"; // Change XYZ to the UID of your LCD 20x4 Bricklet.
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let ipcon = IpConnection::new(); // Create IP connection
-    let lcd_20x4_bricklet = LCD20x4Bricklet::new(UID, &ipcon); // Create device object
+    let ipcon = IpConnection::new(); // Create IP connection.
+    let lcd = Lcd20x4Bricklet::new(UID, &ipcon); // Create device object.
 
-    ipcon.connect(HOST, PORT).recv()??; // Connect to brickd
-                                        // Don't use device before ipcon is connected
+    ipcon.connect((HOST, PORT)).recv()??; // Connect to brickd.
+                                          // Don't use device before ipcon is connected.
 
-    //Create listener for button pressed events.
-    let button_pressed_listener = lcd_20x4_bricklet.get_button_pressed_receiver();
-    // Spawn thread to handle received events. This thread ends when the lcd_20x4_bricklet
+    // Create receiver for button pressed events.
+    let button_pressed_receiver = lcd.get_button_pressed_receiver();
+
+    // Spawn thread to handle received events. This thread ends when the `lcd` object
     // is dropped, so there is no need for manual cleanup.
     thread::spawn(move || {
-        for event in button_pressed_listener {
-            println!("Button Pressed: {}", event);
+        for button_pressed in button_pressed_receiver {
+            println!("Button Pressed: {}", button_pressed);
         }
     });
 
-    //Create listener for button released events.
-    let button_released_listener = lcd_20x4_bricklet.get_button_released_receiver();
-    // Spawn thread to handle received events. This thread ends when the lcd_20x4_bricklet
+    // Create receiver for button released events.
+    let button_released_receiver = lcd.get_button_released_receiver();
+
+    // Spawn thread to handle received events. This thread ends when the `lcd` object
     // is dropped, so there is no need for manual cleanup.
     thread::spawn(move || {
-        for event in button_released_listener {
-            println!("Button Released: {}", event);
+        for button_released in button_released_receiver {
+            println!("Button Released: {}", button_released);
         }
     });
 
