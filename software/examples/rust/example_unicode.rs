@@ -8,11 +8,10 @@ const UID: &str = "XYZ"; // Change XYZ to the UID of your LCD 20x4 Bricklet
 
 /// Maps a normal UTF-8 encoded string to the LCD charset.
 fn utf8_to_ks0066u(utf8: &str) -> String {
-    let mut result = Vec::<u8>::with_capacity(utf8.len());
+    let mut result = Vec::<char>::with_capacity(utf8.len());
     for code_point in utf8.chars() {
-        //technically these are not code points, but scalar values
-        let to_match = code_point as u32;
-        let mut replacement = match to_match {
+        // Technically these are not code points, but scalar values.
+        let mut replacement = match code_point as u32 {
             // ASCII subset from JIS X 0201
             // The LCD charset doesn't include '\' and '~', use similar characters instead
             0x005c => 0xa4, // REVERSE SOLIDUS maps to IDEOGRAPHIC COMMA
@@ -54,13 +53,13 @@ fn utf8_to_ks0066u(utf8: &str) -> String {
             0x0304 => 0xf8, // COMBINING MACRON
             0x00f7 => 0xfd, // DIVISION SIGN
 
-            //default
+            // Default
             _ => 0xff, // BLACK SQUARE
         };
 
         // Special handling for 'x' followed by COMBINING MACRON
         if replacement == 0xf8 {
-            if !result[result.len() - 1] != 'x' as u8 {
+            if result[result.len() - 1] != 'x' {
                 replacement = 0xff; // BLACK SQUARE
             }
 
@@ -68,10 +67,10 @@ fn utf8_to_ks0066u(utf8: &str) -> String {
                 result.truncate(result.len() - 1);
             }
         }
-        result.push(replacement as u8);
+        result.push(std::char::from_u32(replacement).unwrap());
     }
 
-    unsafe { String::from_utf8_unchecked(result) }
+    result.into_iter().collect()
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -84,17 +83,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Turn backlight on
     lcd.backlight_on();
 
-    // Write some strings using the UTF16ToKS0066U function to map to the LCD charset
+    // Write some strings using the utf8_to_ks0066u function to map to the LCD charset
     lcd.write_line(0, 0, utf8_to_ks0066u("Stromstärke: 17µA"));
     lcd.write_line(1, 0, utf8_to_ks0066u("Temperatur:  23°C"));
 
-    // Write a string directly including characters from the LCD charset
-    let string = unsafe {
-        let mut bytes = "Drehzahl: 750min".as_bytes().to_vec();
-        bytes.push(0xe9); //^-1 character
-        String::from_utf8_unchecked(bytes)
-    };
-    lcd.write_line(2, 0, string);
+    // Write a string directly including characters from the LCD charset. \u{00e9} is the ⁻¹ character.
+    lcd.write_line(2, 0, "Drehzahl: 750min\u{00e9}".to_string());
 
     println!("Press enter to exit.");
     let mut _input = String::new();
